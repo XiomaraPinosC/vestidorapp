@@ -1,19 +1,24 @@
+const path = require('path')
+const cors = require('cors');
 const express = require('express')
-var http = require('http');
-var bodyParser = require('body-parser');
-
+const app = express()
 
 var userRoute = require('./rutas/usuarios.js');
 var prendasRoute = require('./rutas/prendas.js');
 var connection = require('./conexion');
 
+//midelwares
+//comunicar con otro servidor
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({extended: false}));
 
-const app = express()
-app.use(bodyParser.urlencoded({extended: false}));
-app.use(bodyParser.json());
+app.set('port',process.env.PORT || 3000)
 
+//static files
+app.use(express.static(path.join(__dirname,'public')));
 
-//rutas 
+//rutas
 app.use('/usuarios', userRoute);
 app.use('/prendas', prendasRoute);
 app.get("/prueba", (req, res)=>{
@@ -24,23 +29,9 @@ app.get("/prueba", (req, res)=>{
     return res.end(JSON.stringify(response));
 });
 
-
-connection.connect((err) => {
-    if (err){
-        console.log(err);
-        console.log('mysql no conectado!');
-    }else
-        console.log('mysql conectado!');
-
-    var server = http.createServer(app);
-
-    server.listen('3000', err =>{
-        if (err){
-            console.log('no puedo iniciar el servidor')
-        }
-        console.log('server iniciado  ')
-    })
-});
+const server=app.listen(app.get('port'),()=>{
+    console.log('server on port', app.get('port'));
+})
 
   
 
