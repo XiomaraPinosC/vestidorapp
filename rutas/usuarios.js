@@ -2,6 +2,10 @@
 var express = require('express');
 var router = express.Router();
 var connection = require('../conexion');
+var nodemailer = require('nodemailer');
+xoauth2 = require('xoauth2')
+var multer = require("multer");
+var upload = multer({dest:"./public/images/uploads/"});
 
 
 router.post('/getUserData', function (req, res) {
@@ -190,6 +194,101 @@ router.post('/unfav', function (req, res) {
             res.send(JSON.stringify({resultado: 'exito', 'descripcion': 'se quitó favoritos de forma exitosa'}))
     });
 })
+
+router.get('/getListUsers', function (req, res) {
+    connection.query('select * from usuarios', (err, row)=>{
+        if(err) {
+            res.send(JSON.stringify({data: 'error '+err}))
+            console.log(err);
+        }else{
+            if (row && row.length ) {
+                res.send({data:row})
+            }
+            else
+                res.send(JSON.stringify({data: 'no hay registros'}))
+        }
+    });
+})
+
+router.get('/formSendMail', function(req, res){
+    res.send('<form method="post" enctype="multipart/form-data" action="compartir">'
+        + '<p>Post Title: <input type="text" name="title"/></p>'
+        + '<p>Post Content: <input type="text" name="content"/></p>'
+        + '<p>Image: <input type="file" name="image"/></p>'
+        + '<p><input type="submit" value="Upload"/></p>'
+        + '</form>');
+})
+
+router.post('/compartir', upload.single("image"), function (req, res) {
+    de=req.body.de
+    para= req.body.para
+    var image = req.file.filename;
+
+    console.log(req)
+
+    var smtpTransport = nodemailer.createTransport({
+        service: "Gmail",
+        secureConnection: true,
+        auth: {
+            user: "rick658658@gmail.com",
+            pass: "ContraAventura658_658"
+        },
+        tls: {
+            rejectUnauthorized: false
+        }
+    });
+
+    contenido=
+        "<html>"+
+        "   <head>"+
+        "       <style>"+
+        "           .cab{"+
+        "               width: 100%;"+
+        "               height: 20vh"+
+        "               background: #555"+
+        "           }"+
+        "           .cuerpo{"+
+        "               width: 100%;"+
+        "               height: 60vh"+
+        "               background: #AFFC86"+
+        "           }"+
+        "       </style>"+
+        "   </head>"+
+        "   <body>"+
+        "       <div class='cab'>"+
+        "           <h3>Mira mi captura de la App de Prendas</h3>"+
+        "       <div>"+
+        "       <div class='cuerpo'>"+
+        "           <p>Te invito a que uses esta aplicación, sirve para probarse ropa en un entorno de realidad aumentada.<br><br>¿Qué te parece?</p>"+
+        "       <div>"+
+        "   </body>"+
+        "</html>"
+        
+    
+    var mailOptions = {
+        from: de, // sender address
+        to: para, // list of receivers
+        subject: "Mira lo que me probé en la App de Ropa Virtual", // Subject line
+        html: contenido, // plaintext body
+        attachments:[{
+                fileName: req.body.title,
+                contentType: req.file.mimetype,
+                path: req.file.path
+            }
+        ]
+    }
+
+    smtpTransport.sendMail(mailOptions, function(error, response){
+        if(error){
+            console.log(error);
+            res.send('Failed');
+        }else{
+            console.log("Message sent: " + JSON.stringify(response));
+            res.send('Worked');
+        }
+    }); 
+})
+
 
 
 module.exports = router;
