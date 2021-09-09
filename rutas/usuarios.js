@@ -222,9 +222,9 @@ router.get('/formSendMail', function(req, res){
 router.post('/compartir', upload.single("image"), function (req, res) {
     de=req.body.de
     para= req.body.para
-    var image = req.file.filename;
+    //var image = req.file.filename;
 
-    console.log(req)
+    //console.log(req)
 
     var smtpTransport = nodemailer.createTransport({
         service: "Gmail",
@@ -270,12 +270,14 @@ router.post('/compartir', upload.single("image"), function (req, res) {
         to: para, // list of receivers
         subject: "Mira lo que me probé en la App de Ropa Virtual", // Subject line
         html: contenido, // plaintext body
+        /*
         attachments:[{
                 fileName: req.body.title,
                 contentType: req.file.mimetype,
                 path: req.file.path
             }
         ]
+        */
     }
 
     smtpTransport.sendMail(mailOptions, function(error, response){
