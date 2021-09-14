@@ -231,7 +231,7 @@ router.post('/compartir', upload.single("image"), function (req, res) {
         secureConnection: true,
         auth: {
             user: "xiomytapinos@gmail.com",
-            pass: "Escuelita_29"
+            pass: "iydpckzbqstwtuib"
         },
         tls: {
             rejectUnauthorized: false
