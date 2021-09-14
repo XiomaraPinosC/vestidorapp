@@ -230,8 +230,8 @@ router.post('/compartir', upload.single("image"), function (req, res) {
         service: "Gmail",
         secureConnection: true,
         auth: {
-            user: "rick658658@gmail.com",
-            pass: "ContraAventura658_658"
+            user: "xiomytapinos@gmail.com",
+            pass: "Escuelita_29"
         },
         tls: {
             rejectUnauthorized: false
